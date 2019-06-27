@@ -12,7 +12,7 @@
             <Col v-if="isLogined" span="2">
                 <Dropdown @on-click="handleDropDown">
                     <Button size="large">
-                        欢迎{{ user.username }}<Icon type="ios-arrow-down"></Icon>
+                        欢迎{{ user.nickname || user.username }}<Icon type="ios-arrow-down"></Icon>
                     </Button>
                     <DropdownMenu slot="list">
                         <DropdownItem name="profile">个人中心</DropdownItem>

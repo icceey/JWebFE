@@ -53,17 +53,17 @@ export default {
             ruleRegister: {
                 username: [
                     {required: true, message: '请输入用户名', trigger: 'blur'},
-                    {max: 20, message: '最长20字符哦', trigger: 'blur'},
-                    {validator: usernameCheck, trigger: 'blur'}
+                    {max: 20, message: '最长20字符哦', trigger: 'change'},
+                    {validator: usernameCheck, trigger: 'change'}
                 ],
                 password: [
                     {required: true, message: '请输入密码', trigger: 'blur'},
-                    {max: 20, message: '最长20字符哦', trigger: 'blur'},
+                    {max: 20, message: '最长20字符哦', trigger: 'change'},
                     {validator: passwordCheck, trigger: 'blur'}
                 ],
                 password2: [
                     {required: true, message: '请确认密码', trigger: 'blur'},
-                    {max: 20, message: '最长20字符哦', trigger: 'blur'},
+                    {max: 20, message: '最长20字符哦', trigger: 'change'},
                     {validator: password2Check, trigger: 'blur'}
                 ]
             },
@@ -82,28 +82,33 @@ export default {
     methods: {
         ...mapActions(['changeRegisterModalVisiable']),
         register() {
-            this.loading = true;
-            new Promise((resolve, reject) => {
-                this.axios.post('/user/register', {
-                    username: this.formRegister.username,
-                    password: util.md5(this.formRegister.password)
-                }).then(response => resolve(response))
-                .catch(() => reject());
-            }).then(response => {
-                this.loading = false;
-                if(response.data) {
-                    var code = response.data.code;
-                    if(code === RESPONSE.SUCCESS) {
-                        this.changeRegisterModalVisiable(false);
-                        this.$success('注册成功');
-                    } else if(code === RESPONSE.FAIL) {
-                        this.$error(response.data.message);
-                    }
+            this.$refs.formRegister.validate(valid => {
+                if(valid) {
+                    this.loading = true
+                    new Promise((resolve, reject) => {
+                        this.axios.post('/user/register', {
+                            username: this.formRegister.username,
+                            password: util.md5(this.formRegister.password)
+                        }).then(response => resolve(response))
+                        .catch(() => reject());
+                    }).then(response => {
+                        this.loading = false;
+                        if(response.data) {
+                            var code = response.data.code;
+                            if(code === RESPONSE.SUCCESS) {
+                                this.changeRegisterModalVisiable(false);
+                                this.$success('注册成功');
+                            } else if(code === RESPONSE.FAIL) {
+                                this.$error(response.data.message);
+                            }
+                        }
+                    }).catch(() => {
+                        this.$error('嘤嘤嘤注册失败,请检查网络连接');
+                        this.loading = false;
+                    })
                 }
-            }).catch(() => {
-                this.$error('嘤嘤嘤注册失败,请检查网络连接');
-                this.loading = false;
-            });
+            })
+            
         },
     }
 

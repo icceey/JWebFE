@@ -10,16 +10,20 @@ export default new Vuex.Store({
   state: {
     loginModalVisiable: false,
     registerModalVisiable: false,
+    newTodoModalVisiable: false,
     user: {}
   },
 
 
   mutations: {
     changeLoginModalVisiable(state, {visiable}) {
-      state.loginModalVisiable = visiable;
+      state.loginModalVisiable = visiable
     },
     changeRegisterModalVisiable(state, {visiable}) {
-      state.registerModalVisiable = visiable;
+      state.registerModalVisiable = visiable
+    },
+    changeNewTodoModalVisiable(state, {visiable}) {
+      state.newTodoModalVisiable = visiable
     },
     changeUser(state, {user}) {
       if(user.id) {
@@ -40,17 +44,22 @@ export default new Vuex.Store({
 
   actions: {
     getUser({commit}) {
-      new Promise(resolve => {
-          Vue.prototype.axios.get('/user/userinfo').then(response => resolve(response));
+      new Promise((resolve, reject) => {
+          Vue.prototype.axios.get('/user/profile')
+            .then(response => resolve(response))
+            .catch(() => reject());
       }).then(response => {
           commit('changeUser', {user: response.data.data.user || {}});
-      });
+      }).catch(() => commit('changeUser', {user: {}}))
     },
     changeLoginModalVisiable({commit}, playload) {
-      commit('changeLoginModalVisiable', playload);
+      commit('changeLoginModalVisiable', playload)
     },
     changeRegisterModalVisiable({commit}, playload) {
-      commit('changeRegisterModalVisiable', playload);
+      commit('changeRegisterModalVisiable', playload)
+    },
+    changeNewTodoModalVisiable({commit}, playload) {
+      commit('changeNewTodoModalVisiable', playload)
     },
     changeUser({commit}, playload) {
       commit('changeUser', playload);

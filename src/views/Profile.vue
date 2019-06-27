@@ -16,7 +16,7 @@
             </FormItem>
             <formItem>
                 <Button type="primary" :loading="loading" @click="save" long>保存</Button>
-                <Button @click="reset" :disabled="loading" long>重置</Button>
+                <Button @click="init" :disabled="loading" long>重置</Button>
             </formItem>
         </Form>
     </Card>
@@ -25,10 +25,19 @@
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
+import { RESPONSE, PATTERN } from '../util/constants';
 
 export default {
     name: 'Profile',
     data() {
+        const mailCheck = (rule, value, callback) => {
+            if(value && !PATTERN.EMAIL.test(value)) callback(new Error('邮箱格式不合法'))
+            callback()
+        }
+        const phoneCheck = (rule, value, callback) => {
+            if(value && !PATTERN.PHONE.test(value)) callback(new Error('电话格式不对哦'))
+            callback()
+        }
         return {
             loading: false,
             formProfile: {
@@ -37,11 +46,16 @@ export default {
                 phone: ''
             },
             ruleProfile: {
-                username: [
+                nickname: [
                     {max: 20, message: '最长20字符哦', trigger: 'blur'}
                 ],
                 mail: [
-                    {max: 20, message: '最长20字符哦', trigger: 'blur'}
+                    {max: 30, message: '最长30字符哦', trigger: 'blur'},
+                    {validator: mailCheck, trigger: 'blur'}
+                ],
+                phone: [
+                    {max: 15, message: '最长15字符哦', trigger: 'blur'},
+                    {validator: phoneCheck, trigger: 'blur'}
                 ]
             }
         }
@@ -49,18 +63,47 @@ export default {
     computed: {
         ...mapGetters(['user'])
     },
+    mounted() {
+        this.init()
+    },
     methods: {
         ...mapActions(['changeUser']),
-        save() {
-            new Promise(resolve => {
-                
-            })
-        },
-        reset() {
+        init() {
             this.formProfile.nickname = this.user.nickname
             this.formProfile.mail = this.user.mail
             this.formProfile.phone = this.user.phone
-        }
+        },
+        save() {
+            this.$refs.formProfile.validate(valid => {
+                if(valid) {
+                    this.loading = true
+                    new Promise((resolve, reject) => {
+                        this.axios.post('/user/profile/update', {
+                            nickname: this.formProfile.nickname,
+                            mail: this.formProfile.mail,
+                            phone: this.formProfile.phone
+                        }).then(res => resolve(res))
+                        .catch(() => reject())
+                    }).then(res => {
+                        this.loading = false
+                        if(res.data) {
+                            var code = res.data.code
+                            if(code === RESPONSE.SUCCEES) {
+                                this.$success('修改成功')
+                                this.changeUser({user: res.data.data.user || {}})
+                                    .then(()=>this.init())
+                            } else if(code === RESPONSE.FAIL) {
+                                this.$error(res.data.message)
+                            }
+                        }
+                    }).catch(() => {
+                        this.$error('嘤嘤嘤请检查网络连接')
+                        this.loading = false
+                    })
+                }
+            })
+            
+        },
     }
 }
 </script>

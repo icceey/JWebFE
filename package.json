@@ -10,6 +10,7 @@
   "dependencies": {
     "core-js": "^2.6.5",
     "iview": "^3.0.1",
+    "tui-editor": "^1.4.4-alpha.0",
     "utility": "^1.16.1",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",

@@ -54,35 +54,39 @@ export default {
     methods: {
         ...mapActions(['changeUser', 'changeLoginModalVisiable']),
         login() {
-            this.$refs['formLogin'].validate(valid => {
+            this.$refs.formLogin.validate(valid => {
                 if(valid) {
-                    this.loading = true;
+                    this.loading = true
                     new Promise((resolve, reject) => {
                         this.axios.post('/user/login', {
                             username: this.formLogin.username,
                             password: util.md5(this.formLogin.password)
                         }).then(response => resolve(response))
-                        .catch(() => reject());
+                        .catch(() => reject())
                     }).then(response => {
-                        this.loading = false;
+                        this.loading = false
                         if(response.data) {
-                            var code = response.data.code;
+                            var code = response.data.code
                             if(code === RESPONSE.SUCCEES) {
-                                this.changeLoginModalVisiable({visiable: false});
-                                this.$success('登录成功');
-                                this.changeUser({user: response.data.data.user || {}});
+                                this.changeLoginModalVisiable({visiable: false})
+                                this.$success('登录成功')
+                                this.changeUser({user: response.data.data.user || {}})
                             } else if(code === RESPONSE.FAIL) {
-                                this.$error(response.data.message);
+                                this.$error(response.data.message)
                             }
                         }
                     }).catch(() => {
-                        this.$error('嘤嘤嘤登录失败,请检查网络连接');
-                        this.loading = false;
-                    });
+                        this.$error('嘤嘤嘤登录失败,请检查网络连接')
+                        this.loading = false
+                    })
                 }
             })
-            
         },
+        cancel() {
+            if(this.$route.meta.requiredAuth) {
+                this.$router.replace('/')
+            }
+        }
     }
 }
 </script>

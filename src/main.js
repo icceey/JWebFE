@@ -22,14 +22,14 @@ Vue.prototype.$success = (s) => Vue.prototype.$Message.success(s)
 router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
     if (storage.get(STORAGE_KEY.USER)) {
-        next();
+        next()
     } else {
-        Vue.prototype.$error('您还没有登录哦:)');
-        next(false);
+        Vue.prototype.$error('您还没有登录哦:)')
+        next(false)
+        store.dispatch('changeLoginModalVisiable', {visiable: true})
     }
-  }
-  else {
-      next();
+  } else {
+    next()
   }
 })
 
@@ -50,9 +50,11 @@ axios.interceptors.response.use(
   response => {
       if(response.data) {
         if(response.data.code === RESPONSE.SESSION_EXPIRE) {
-          storage.remove(STORAGE_KEY.USER)
-          router.replace('/');
+          store.dispatch('changeUser', {user: {}})
+          store.dispatch('changeLoginModalVisiable', {visiable: true})
         }
+      } else {
+        Vue.prototype.$error('服务器异常');
       }
       return response;
   },
