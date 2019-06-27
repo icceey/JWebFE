@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
 
 Vue.use(Router)
 
@@ -10,16 +9,40 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
+      name: 'index',
+      component: () => import(/* webpackChunkName: "Index" */ './views/Index.vue')
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+      path: '/todo',
+      name: 'todoList',
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "todoList" */ './views/TodoList.vue')
+    },
+    {
+      path: '/new',
+      name: 'newTodo',
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "NewTodo" */ './views/NewTodo.vue')
+    },
+    {
+      path: '/done',
+      name: 'doneTodo',
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "DoneTodo" */ './views/DoneTodo.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "Profile" */ './views/Profile.vue')
     }
   ]
 })
