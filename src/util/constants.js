@@ -20,4 +20,12 @@ exports.STORAGE_KEY = {
 }
 
 
-exports.SERVER = 'http://localhost:8000'
+exports.VIEW_MODE = {
+    ALL: '',
+    UNDO: 'undo',
+    DONE: 'done'
+}
+
+
+// exports.SERVER = 'http://localhost:8000'
+exports.SERVER = 'http://10.64.28.37:8000'

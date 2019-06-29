@@ -14,19 +14,19 @@ export default new Router({
     },
     {
       path: '/todo',
-      name: 'todoList',
+      name: 'Undo',
       meta: {
         requireAuth: true,
       },
-      component: () => import(/* webpackChunkName: "todoList" */ './views/TodoList.vue')
+      component: () => import(/* webpackChunkName: "Undo" */ './views/Undo.vue')
     },
     {
       path: '/done',
-      name: 'doneTodo',
+      name: 'Done',
       meta: {
         requireAuth: true,
       },
-      component: () => import(/* webpackChunkName: "DoneTodo" */ './views/DoneTodo.vue')
+      component: () => import(/* webpackChunkName: "Done" */ './views/Done.vue')
     },
     {
       path: '/profile',

@@ -1,6 +1,7 @@
 <template>
     <Modal v-model="visiable" :title="value.title" width="60%" footer-hide>
-        <vue-markdown :source="value.content"></vue-markdown>
+        <vue-markdown :source="value.content" :html="false" ></vue-markdown>
+        <p style="text-align: right"> {{ datetime }} </p>
     </Modal>
 </template>
 
@@ -20,9 +21,21 @@ export default {
             }
         }
     },
+    mounted() {
+        document.querySelectorAll(".ivu-modal-body").forEach((e) => {
+            e.style.fontSize="18px";
+        })
+    },
     data() {
         return {
             visiable: false,
+        }
+    },
+    computed: {
+        datetime() {
+            if(this.value.datetime) {
+                return this.value.datetime.substring(0, 19).replace('T',' ')
+            } else return ''
         }
     },
     watch: {
@@ -38,10 +51,5 @@ export default {
 
 
 <style scoped>
-.ivu-modal {
-    height: 80%;
-}
-.ivu-modal-content {
-    height: 80%;
-}
+
 </style>
