@@ -6,13 +6,13 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import storage from './util/storage.js'
-import { STORAGE_KEY, RESPONSE } from './util/constants.js'
+import { STORAGE_KEY, RESPONSE, SERVER } from './util/constants.js'
 import './plugins/iview.js'
 import '../vue.config.js'
 
 Vue.config.productionTip = false
 axios.defaults.withCredentials = true
-axios.defaults.baseURL='http://localhost:8000/api'
+axios.defaults.baseURL= SERVER + '/api'
 Vue.use(VueAxios, axios)
 
 Vue.prototype.$error = (s) => Vue.prototype.$Message.error(s)
@@ -51,7 +51,9 @@ axios.interceptors.response.use(
       if(response.data) {
         if(response.data.code === RESPONSE.SESSION_EXPIRE) {
           store.dispatch('changeUser', {user: {}})
-          store.dispatch('changeLoginModalVisiable', {visiable: true})
+          // store.dispatch('changeLoginModalVisiable', {visiable: true})
+        } else if(response.data.code === RESPONSE.EXCEPTION) {
+          Vue.prototype.$error('服务器异常');
         }
       } else {
         Vue.prototype.$error('服务器异常');

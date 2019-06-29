@@ -21,14 +21,6 @@ export default new Router({
       component: () => import(/* webpackChunkName: "todoList" */ './views/TodoList.vue')
     },
     {
-      path: '/new',
-      name: 'newTodo',
-      meta: {
-        requireAuth: true,
-      },
-      component: () => import(/* webpackChunkName: "NewTodo" */ './views/NewTodo.vue')
-    },
-    {
       path: '/done',
       name: 'doneTodo',
       meta: {

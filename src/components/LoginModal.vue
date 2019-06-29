@@ -1,5 +1,5 @@
 <template>
-    <Modal v-model="loginModalVisiable" title="登录" footer-hide>
+    <Modal v-model="loginModalVisiable" title="登录" @on-cancel="cancel" footer-hide>
         <Form ref="formLogin" :model="formLogin" :rules="ruleLogin" :label-width="80">
             <formItem label="用户名" prop="username">
                 <Input v-model="formLogin.username" placeholder="用户名" learable />
@@ -16,7 +16,7 @@
 
 
 <script>
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 import util from 'utility'
 import {RESPONSE} from '../util/constants'
 
@@ -42,6 +42,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['isAuthed']),
         loginModalVisiable: {
             get() {
                 return this.$store.state.loginModalVisiable;
@@ -83,7 +84,7 @@ export default {
             })
         },
         cancel() {
-            if(this.$route.meta.requiredAuth) {
+            if(this.$route.meta.requiredAuth && !this.isAuthed) {
                 this.$router.replace('/')
             }
         }

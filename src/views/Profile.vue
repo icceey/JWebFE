@@ -1,8 +1,25 @@
 <template>
     <Card dis-hover>
-        <div class="avatar-container">
+        <Upload action="" :before-upload="upload" name="avatar" :show-upload-list="false"
+                :format="['jpg','jpeg','png']" :max-size="1024*5" >
+                <!-- :on-success="handleSuccess" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize"> -->
+            <div class="avatar-editor">
+                <div class="avatar-container">
+                    <img class="avatar" :src="avatar"/>
+                    <div class="avatar-mask">
+                        <!-- <a @click.stop="upload"> -->
+                            <div class="mask-content">
+                                <Icon type="ios-camera" size="36"></Icon>
+                                <p class="text">上传头像</p>
+                            </div>
+                        <!-- </a> -->
+                    </div>
+                </div>
+            </div>
+        </Upload>
+        <!-- <div class="avatar-container">
             <img class="avatar" src="https://file.iviewui.com/dist/e1cf12c07bf6458992569e67927d767e.png"/>
-        </div>
+        </div> -->
         <Divider/>
         <Form ref="formProfile" :model="formProfile" :rules="ruleProfile" :label-width="80">
             <FormItem label="昵称" prop="nickname">
@@ -25,7 +42,7 @@
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
-import { RESPONSE, PATTERN } from '../util/constants';
+import { RESPONSE, PATTERN, SERVER} from '../util/constants';
 
 export default {
     name: 'Profile',
@@ -40,6 +57,7 @@ export default {
         }
         return {
             loading: false,
+            avatar: "",
             formProfile: {
                 nickname: '',
                 mail: '',
@@ -61,10 +79,11 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['user'])
+        ...mapGetters(['user']),
     },
     mounted() {
         this.init()
+        document.querySelector(".ivu-upload-select").style.borderRadius="50%";
     },
     methods: {
         ...mapActions(['changeUser']),
@@ -72,6 +91,8 @@ export default {
             this.formProfile.nickname = this.user.nickname
             this.formProfile.mail = this.user.mail
             this.formProfile.phone = this.user.phone
+            if(this.user.avatar) this.avatar = SERVER + '/static/user/avatar/' + this.user.avatar
+            else this.avatar = SERVER + '/static/user/avatar/avatar.png'
         },
         save() {
             this.$refs.formProfile.validate(valid => {
@@ -104,6 +125,29 @@ export default {
             })
             
         },
+        upload(avatar) {
+            var formData = new FormData()
+            formData.append('avatar', avatar)
+            new Promise((resolve, reject) => {
+                this.axios.post('/user/avatar/update', formData, {
+                    headers:{'Content-Type':'multipart/form-data'}
+                }).then(res => resolve(res))
+                .catch(() => reject())
+            }).then(res => {
+                if(res.data) {
+                    var code = res.data.code
+                    if(code === RESPONSE.SUCCEES) {
+                        this.$success('修改成功')
+                        this.avatar = avatar
+                    } else if(code === RESPONSE.FAIL) {
+                        this.$error(res.data.message)
+                    }
+                }
+            }).catch(() => {
+                this.$error('嘤嘤嘤请检查网络连接')
+            })
+            return false
+        }
     }
 }
 </script>
@@ -119,17 +163,62 @@ export default {
         width: 50%;
     }
 }
-.avatar-container {
-    position: relative;
-    left: 50%;
-    transform: translate(-50%);
-    z-index: 10;
-    .avatar {
-        width: 196px;
-        height: 196px;
+.ivu-upload {
+    width: 196px;
+    height: 196px;
+    margin: 20px 44%;
+    border-radius: 50%;
+}
+
+.avatar-editor {
+    width: 196px;
+    height: 196px;
+    border-radius: 50%;
+    // margin: 20px 44%;
+    .avatar-container {
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
-        z-index: 10;
-        border: 1px solid #ddd;
+        &:hover {
+            cursor: pointer;
+            .avatar-mask {
+                opacity: .5;
+            }
+        }
+        position: relative;
+        .avatar {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0px 0px 1px 0px;
+        }
+        .avatar-mask {
+            transition: opacity .2s ease-in;
+            z-index: 1;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            opacity: 0;
+            .mask-content {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                z-index: 3;
+                color: #fff;
+                font-size: 20px;
+                text-align: center;
+                transform: translate(-50%, -50%);
+                .text {
+                    white-space: nowrap;
+                }
+            }
+        }
     }
 }
 .ivu-btn {

@@ -1,10 +1,10 @@
 
-
 module.exports = {
     devServer: {
+        // port: 80,
         proxy: {
             '/api': {
-                target: 'http://localhost:8000',
+                target: require('./src/util/constants.js').SERVER,
                 changeOrigin: true,
                 ws: true,
                 pathRewrite: {

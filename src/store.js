@@ -38,7 +38,7 @@ export default new Vuex.Store({
 
   getters: {
     user: state => state.user,
-    isLogined: state => !!state.user.id
+    isAuthed: state => !!state.user.id
   },
 
 

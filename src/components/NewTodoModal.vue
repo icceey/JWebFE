@@ -1,15 +1,20 @@
 <template>
     <Modal v-model="newTodoModalVisiable" title="新建备忘" width="80%" footer-hide>
-        <Form ref="formTodo" :model="formTodo" label-position="top" >
+        <Form ref="formTodo" :model="formTodo" :rules="ruleTodo" label-position="top" >
             <FormItem label="事件标题" prop="title" >
                 <Input v-model="formTodo.title" placeholder="事件标题" />
             </FormItem>
             <FormItem label="事件内容" prop="content">
                 <MarkdownEditor v-model="formTodo.content" />
             </FormItem>
-            <FormItem label="日期时间">
-                <DatePicker type="date" v-model="formTodo.date" :options="dateOptions"  placeholder="选择日期" format="yyyy-MM-dd" style="width: 200px" show-week-numbers></DatePicker>
-                <TimePicker type="time" v-model="formTodo.time"  placeholder="选择时间" format="HH:mm:ss"   style="width: 200px"></TimePicker>
+            <FormItem label="日期时间" prop="datetime">
+                <DatePicker type="date" v-model="formTodo.date" :options="dateOptions"  
+                        placeholder="选择日期" format="yyyy-MM-dd" style="width: 200px" show-week-numbers>
+                </DatePicker>
+                <TimePicker type="time" v-model="formTodo.time" :steps="[1,5]" 
+                        :disabled-hours="disableHours" :disabled-minutes="disableMins"  
+                        placeholder="选择时间" format="HH:mm"   style="width: 200px">
+                </TimePicker>
             </FormItem>
             <FormItem>
                 <Button type="primary" :loading="loading" @click="submit">提交</Button>
@@ -21,6 +26,7 @@
 <script>
 import MarkdownEditor from '@/components/MarkdownEditor'
 import { mapActions } from 'vuex';
+import { RESPONSE } from '../util/constants';
 
 export default {
     name: 'NewTodoModal',
@@ -28,12 +34,6 @@ export default {
         MarkdownEditor
     },
     data() {
-        const dateCheck = (rule, value, callback) => {
-            
-        }
-        const timeCheck = (rule, value, callback) => {
-
-        }
         return {
             loading: false,
             formTodo: {
@@ -49,7 +49,7 @@ export default {
                 ],
                 content: [
                     {required: true, message: '请输入事件内容', trigger: 'blur'},
-                ]
+                ],
             },
             dateOptions: {
                 disabledDate (date) {
@@ -61,10 +61,10 @@ export default {
     computed: {
         newTodoModalVisiable: {
             get() {
-                return this.$store.state.newTodoModalVisiable;
+                return this.$store.state.newTodoModalVisiable
             },
             set(visiable) {
-                this.changeNewTodoModalVisiable({visiable: visiable});
+                this.changeNewTodoModalVisiable({visiable: visiable})
             }
         },
         datetime() {
@@ -73,26 +73,61 @@ export default {
                 tmp = new Date(this.formTodo.date)
                 if(this.formTodo.time) {
                     var tm = this.formTodo.time.split(':')
-                    tmp.setHours(tm[0]);
-                    tmp.setMinutes(tm[1]);
-                    tmp.setSeconds(tm[2]);
+                    tmp.setHours(tm[0])
+                    tmp.setMinutes(tm[1])
                 }
             }
-            return tmp.toString()
+            return tmp.valueOf()
+        },
+        disableHours() {
+            var dt = new Date()
+            if(new Date(this.datetime).getDay() === dt.getDay())
+                return [...Array(dt.getHours()).keys()]
+            return []
+        },
+        disableMins() {
+            var dt = new Date()
+            if(this.disableHours.length > 0 && new Date(this.datetime).getHours() === dt.getHours())
+                return [...Array(dt.getMinutes()+1).keys()]
+            return []
         }
     },
     methods: {
         ...mapActions(['changeNewTodoModalVisiable']),
         submit() {
-            
+
+            this.$refs.formTodo.validate(valid => {
+                if(valid) {
+                    if(this.datetime && new Date(this.datetime).valueOf() < Date.now()) {
+                        this.$error('这个时间已经过了哦')
+                        return ;
+                    }
+                    this.loading = true
+                    new Promise((resolve, reject) => {
+                        this.axios.post('/todo/add', {
+                            title: this.formTodo.title,
+                            content: this.formTodo.content,
+                            datetime: this.datetime
+                        }).then(res => resolve(res))
+                        .catch(() => reject())
+                    }).then(res => {
+                        this.loading = false
+                        if(res.data) {
+                            var code = res.data.code
+                            if(code === RESPONSE.SUCCEES) {
+                                this.$success('添加成功')
+                            } else if(code === RESPONSE.FAIL) {
+                                this.$error(res.data.message)
+                            }
+                        }
+                    }).catch(() => {
+                        this.$error('嘤嘤嘤请检查网络连接')
+                        this.loading = false
+                    })
+                }
+            })
         },
     }
 }
 </script>
 
-
-<style scoped>
-.ivu-modal {
-    height: 80%;
-}
-</style>
