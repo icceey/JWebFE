@@ -86,12 +86,12 @@ export default {
                             }
                         }
                     }).catch(() => {
-                        this.$error('嘤嘤嘤注册失败,请检查网络连接');
+                        this.$error('修改失败,请检查网络连接');
                         this.loading = false;
                     })
                 }
             })
-            
+          
         },
     }
 

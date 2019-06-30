@@ -6,6 +6,7 @@
                 <MenuItem name="todo" to="/todo">事件清单</MenuItem>
                 <!-- <MenuItem name="?" to="/todo">草稿箱</MenuItem> -->
                 <MenuItem name="done" to="/done">已完成</MenuItem>
+                <!-- <MenuItem v-if="isAdmin" name="admin" to="/admin">后台管理</MenuItem> -->
             </Menu>
         </Col>
         <!-- <template v-if="isAuthed"> -->
@@ -64,21 +65,22 @@ export default {
         this.getUser();
     },
     computed: {
-        ...mapGetters(['user', 'isAuthed']),
+        ...mapGetters(['user', 'isAuthed', 'isAdmin']),
         activeMenu () {
             return this.$route.path.split('/')[1]
         },
     },
     methods: {
-      ...mapActions(['changeLoginModalVisiable', 'changeRegisterModalVisiable', 'getUser', 'changeUser']),
+      ...mapActions(['changeLoginModalVisiable', 'changeRegisterModalVisiable', 'getUser', 'changeUser', 'clearAll']),
       handleDropDown(command) {
           if(command === 'logout') this.logout()
-          else if(command === 'profile') this.$router.push('/profile')
-          else if(command === 'setting') this.$router.push('/setting')
+          else {
+              this.$router.push('/' + command)
+          }
       },
       logout() {
         this.axios.post('/user/logout');
-        this.changeUser({user: {}});
+        this.clearAll();
         this.$router.replace('/');
       }
     }

@@ -46,6 +46,15 @@ export default new Router({
         requireAuth: true,
       },
       component: () => import(/* webpackChunkName: "Setting" */ './views/Setting.vue')
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      meta: {
+        requireAuth: true,
+        requireAdmin: true,
+      },
+      component: () => import(/* webpackChunkName: "Admin" */ './views/Admin.vue')
     }
   ]
 })

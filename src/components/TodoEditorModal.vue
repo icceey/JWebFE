@@ -26,6 +26,7 @@
 <script>
 import MarkdownEditor from '@/components/MarkdownEditor'
 import { RESPONSE, EDITOR_MODE } from '../util/constants';
+import { mapActions } from 'vuex';
 
 export default {
     name: 'TodoEditorModal',
@@ -102,6 +103,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions(['addUndo']),
         submit() {
             this.$refs.formTodo.validate(valid => {
                 if(valid) {
@@ -128,7 +130,10 @@ export default {
                         if(res.data) {
                             var code = res.data.code
                             if(code === RESPONSE.SUCCESS) {
-                                if(this.mode === EDITOR_MODE.NEW) this.$success('添加成功')
+                                if(this.mode === EDITOR_MODE.NEW) {
+                                    this.$success('添加成功')
+                                    this.addUndo({undo: res.data.data.todo})
+                                }
                                 else {
                                     this.$success('修改成功')
                                     dat.datetime = new Date(dat.datetime).format('yyyy-MM-dd hh:mm:ss')

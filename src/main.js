@@ -6,7 +6,7 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import storage from './util/storage.js'
-import { STORAGE_KEY, RESPONSE, SERVER } from './util/constants.js'
+import { STORAGE_KEY, RESPONSE, SERVER, USER_TYPE } from './util/constants.js'
 import './plugins/iview.js'
 import '../vue.config.js'
 
@@ -17,6 +17,7 @@ axios.defaults.baseURL= SERVER + '/api'
 Vue.use(VueAxios, axios)
 
 Date.prototype.format = function (fmt) {
+  if(!this) return ''
   var o = {
   "M+": this.getMonth() + 1,
   "d+": this.getDate(),
@@ -41,13 +42,23 @@ Vue.prototype.$success = (s) => Vue.prototype.$Message.success(s)
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
-    if (storage.get(STORAGE_KEY.USER)) {
-        next()
+    if(to.meta.requireAdmin) {
+      if (storage.get(STORAGE_KEY.USER).type >= USER_TYPE.ADMIN) {
+          next()
+      } else {
+          Vue.prototype.$error('您不是管理员呢:)')
+          next(false)
+      }
     } else {
-        Vue.prototype.$error('您还没有登录哦:)')
-        next(false)
-        store.dispatch('changeLoginModalVisiable', {visiable: true})
+      if (storage.get(STORAGE_KEY.USER)) {
+          next()
+      } else {
+          Vue.prototype.$error('您还没有登录哦:)')
+          next(false)
+          store.dispatch('changeLoginModalVisiable', {visiable: true})
+      }
     }
+    
   } else {
     next()
   }

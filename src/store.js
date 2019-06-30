@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {STORAGE_KEY} from '@/util/constants.js'
+import {STORAGE_KEY, USER_TYPE} from '@/util/constants.js'
 import storage from '@/util/storage.js'
 
 Vue.use(Vuex)
@@ -10,6 +10,8 @@ export default new Vuex.Store({
   state: {
     loginModalVisiable: false,
     registerModalVisiable: false,
+    undos: [],
+    dones: [],
     user: {}
   },
 
@@ -28,13 +30,37 @@ export default new Vuex.Store({
         storage.remove(STORAGE_KEY.USER)
       }
       state.user = user;
+    },
+    setUndos(state, {undos}) {
+      state.undos = undos
+    },
+    setDones(state, {dones}) {
+      state.dones = dones
+    },
+    addUndo(state, {undo}) {
+      state.undos.push(undo)
+    },
+    addDone(state, {done}) {
+      state.dones.push(done)
+    },
+    removeUndo(state, {undo}) {
+      var idx = state.undos.findIndex((e) => e.id === undo.id)
+      state.undos.splice(idx, 1)
+    },
+    removeDone(state, {done}) {
+      var idx = state.dones.findIndex((e) => e.id === done.id)
+      state.dones.splice(idx, 1)
     }
   },
 
 
   getters: {
     user: state => state.user,
-    isAuthed: state => !!state.user.id
+    isAuthed: state => !!state.user.id,
+    isAdmin: state => state.user.type >= USER_TYPE.ADMIN,
+    isSuperAdmin: state => state.user.type === USER_TYPE.SUPER_ADMIN,
+    undos: state => state.undos,
+    dones: state => state.dones,
   },
 
 
@@ -56,6 +82,23 @@ export default new Vuex.Store({
     },
     changeUser({commit}, playload) {
       commit('changeUser', playload);
+    },
+    addUndo({commit}, playload) {
+      commit('addUndo', playload);
+    },
+    addDone({commit}, playload) {
+      commit('addDone', playload);
+    },
+    removeUndo({commit}, playload) {
+      commit('removeUndo', playload);
+    },
+    removeDone({commit}, playload) {
+      commit('removeDone', playload);
+    },
+    clearAll({commit}) {
+      commit('changeUser', {});
+      commit('setUndos', {undos: []});
+      commit('setDones', {dones: []});
     }
   },
 

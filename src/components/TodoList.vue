@@ -35,7 +35,7 @@
             <div v-if="page<2" slot="no-more"></div>
             <div slot="no-results">还没有备忘哦</div>
         </infinite-loading>
-        <Spin size="large" v-if="loading" fix></Spin>
+        <!-- <Spin size="large" v-if="loading" fix></Spin> -->
         <TodoModal v-model="curTodo"></TodoModal>
         <TodoEditorModal v-model="editTodo" :visiable="todoEditorModalVisiable" :mode="editorMode.EDIT"
                 @on-visiable-change="todoEditorModalVisiable=$event" @input="input" />
@@ -63,6 +63,7 @@ import VueMarkdown from 'vue-markdown'
 import InfiniteLoading from 'vue-infinite-loading'
 import TodoModal from './TodoModal'
 import {RESPONSE, VIEW_MODE, EDITOR_MODE} from '../util/constants'
+import {mapGetters, mapActions} from 'vuex'
 
 export default {
     name: 'TodoList',
@@ -83,7 +84,7 @@ export default {
             loading: false,
             page: 0,
             totPage: 1,
-            todos: [],
+            // todos: [],
             curTodo: {},
             editTodo: {},
             delTodo: {},
@@ -94,11 +95,23 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['undos', 'dones']),
         rows() {
             return Math.ceil(this.todos.length/4);
         },
+        todos: {
+            get() {
+                if(this.mode === VIEW_MODE.UNDO) return this.undos
+                else return this.dones
+            },
+            set(value) {
+                if(this.mode === VIEW_MODE.UNDO) this.setUndos({undos: value})
+                else this.setDones({dones: value})
+            }
+        }
     },
     methods: {
+        ...mapActions(['addUndo', 'addDone', 'removeUndo', 'removeDone', 'setUndos', 'setDones']),
         loadMore($state) {
             if(this.page >= this.totPage) {
                 $state.complete()
@@ -118,8 +131,13 @@ export default {
                     var code = response.data.code
                     if(code === RESPONSE.SUCCESS) {
                         this.page ++
-                        for(var i = 0; i < response.data.data.todos.length; i++) {
-                            this.todos.push(response.data.data.todos[i])
+                        var tds = response.data.data.todos
+                        for(var i = 0; i < tds.length; i++) {
+                            if(this.mode === VIEW_MODE.UNDO) {
+                                this.addUndo({undo: tds[i]})
+                            } else {
+                                this.addDone({done: tds[i]})
+                            }
                         }
                         this.totPage = response.data.data.tot
                         $state.loaded();
@@ -145,7 +163,13 @@ export default {
                     if(code === RESPONSE.SUCCESS) {
                         if(this.mode === VIEW_MODE.UNDO) this.$success('已移至已完成列表')
                         else this.$success('已移至未完成列表')
-                        this.removeTodo(todo)
+                        if(this.mode === VIEW_MODE.UNDO) {
+                            this.removeUndo({undo: todo})
+                            this.addDone({done: todo})
+                        } else {
+                            this.removeDone({done: todo})
+                            this.addUndo({undo: todo})
+                        }
                     } else if(code === RESPONSE.FAIL)  {
                         this.$error(response.data.message)
                     }
@@ -168,7 +192,11 @@ export default {
                     var code = response.data.code
                     if(code === RESPONSE.SUCCESS) {
                         this.$success('删除成功')
-                        this.removeTodo(todo)
+                        if(this.mode === VIEW_MODE.UNDO) {
+                            this.removeUndo(todo)
+                        } else {
+                            this.removeDone(todo)
+                        }
                     } else if(code === RESPONSE.FAIL) {
                         this.$error(response.data.message)
                     }
@@ -176,10 +204,6 @@ export default {
             }).catch(() => {
                 this.loading = false
             });
-        },
-        removeTodo(todo) {
-            var idx = this.todos.findIndex((e) => e.id === todo.id)
-            this.todos.splice(idx, 1)
         },
         input(value) {
             console.log(value)
