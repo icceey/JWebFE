@@ -8,7 +8,7 @@ exports.PATTERN = {
 
 
 exports.RESPONSE = {
-    SUCCEES: 0,
+    SUCCESS: 0,
     FAIL: 1,
     SESSION_EXPIRE: 2,
     EXCEPTION: 9
@@ -29,6 +29,12 @@ exports.VIEW_MODE = {
 exports.EDITOR_MODE = {
     NEW: 'new',
     EDIT: 'edit'
+}
+
+exports.USER_TYPE = {
+    USER: 0,
+    ADMIN: 1,
+    SUPER_ADMIN: 2,
 }
 
 

@@ -74,6 +74,7 @@ export default {
       handleDropDown(command) {
           if(command === 'logout') this.logout()
           else if(command === 'profile') this.$router.push('/profile')
+          else if(command === 'setting') this.$router.push('/setting')
       },
       logout() {
         this.axios.post('/user/logout');

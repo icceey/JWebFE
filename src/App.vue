@@ -5,7 +5,9 @@
           <NavBar></NavBar>
       </Header>
       <Content :style="{padding: '0 50px'}">
+        <keep-alive>
           <router-view></router-view>
+        </keep-alive>
       </Content>
       <!-- <Footer class="layout-footer-center">2011-2016 &copy; TalkingData</Footer> -->
     </Layout>

@@ -116,7 +116,7 @@ export default {
             }).then(response => {
                 if(response.data) {
                     var code = response.data.code
-                    if(code === RESPONSE.SUCCEES) {
+                    if(code === RESPONSE.SUCCESS) {
                         this.page ++
                         for(var i = 0; i < response.data.data.todos.length; i++) {
                             this.todos.push(response.data.data.todos[i])
@@ -142,7 +142,7 @@ export default {
                 this.loading = false
                 if(response.data) {
                     var code = response.data.code
-                    if(code === RESPONSE.SUCCEES) {
+                    if(code === RESPONSE.SUCCESS) {
                         if(this.mode === VIEW_MODE.UNDO) this.$success('已移至已完成列表')
                         else this.$success('已移至未完成列表')
                         this.removeTodo(todo)
@@ -166,7 +166,7 @@ export default {
                 this.loading = false
                 if(response.data) {
                     var code = response.data.code
-                    if(code === RESPONSE.SUCCEES) {
+                    if(code === RESPONSE.SUCCESS) {
                         this.$success('删除成功')
                         this.removeTodo(todo)
                     } else if(code === RESPONSE.FAIL) {

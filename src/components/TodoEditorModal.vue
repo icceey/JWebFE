@@ -127,7 +127,7 @@ export default {
                         this.loading = false
                         if(res.data) {
                             var code = res.data.code
-                            if(code === RESPONSE.SUCCEES) {
+                            if(code === RESPONSE.SUCCESS) {
                                 if(this.mode === EDITOR_MODE.NEW) this.$success('添加成功')
                                 else {
                                     this.$success('修改成功')

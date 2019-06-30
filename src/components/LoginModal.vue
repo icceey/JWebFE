@@ -68,7 +68,7 @@ export default {
                         this.loading = false
                         if(response.data) {
                             var code = response.data.code
-                            if(code === RESPONSE.SUCCEES) {
+                            if(code === RESPONSE.SUCCESS) {
                                 this.changeLoginModalVisiable({visiable: false})
                                 this.$success('登录成功')
                                 this.changeUser({user: response.data.data.user || {}})

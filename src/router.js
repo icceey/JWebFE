@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import Undo from './views/Undo'
+import Done from './views/Done'
+
 Vue.use(Router)
 
 export default new Router({
@@ -18,7 +21,7 @@ export default new Router({
       meta: {
         requireAuth: true,
       },
-      component: () => import(/* webpackChunkName: "Undo" */ './views/Undo.vue')
+      component: Undo
     },
     {
       path: '/done',
@@ -26,7 +29,7 @@ export default new Router({
       meta: {
         requireAuth: true,
       },
-      component: () => import(/* webpackChunkName: "Done" */ './views/Done.vue')
+      component: Done
     },
     {
       path: '/profile',
@@ -35,6 +38,14 @@ export default new Router({
         requireAuth: true,
       },
       component: () => import(/* webpackChunkName: "Profile" */ './views/Profile.vue')
+    },
+    {
+      path: '/setting',
+      name: 'setting',
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import(/* webpackChunkName: "Setting" */ './views/Setting.vue')
     }
   ]
 })

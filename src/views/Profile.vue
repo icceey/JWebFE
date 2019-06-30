@@ -109,7 +109,7 @@ export default {
                         this.loading = false
                         if(res.data) {
                             var code = res.data.code
-                            if(code === RESPONSE.SUCCEES) {
+                            if(code === RESPONSE.SUCCESS) {
                                 this.$success('修改成功')
                                 this.changeUser({user: res.data.data.user || {}})
                                     .then(()=>this.init())
@@ -136,7 +136,7 @@ export default {
             }).then(res => {
                 if(res.data) {
                     var code = res.data.code
-                    if(code === RESPONSE.SUCCEES) {
+                    if(code === RESPONSE.SUCCESS) {
                         this.$success('修改成功')
                         this.avatar = avatar
                     } else if(code === RESPONSE.FAIL) {
