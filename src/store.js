@@ -10,7 +10,6 @@ export default new Vuex.Store({
   state: {
     loginModalVisiable: false,
     registerModalVisiable: false,
-    newTodoModalVisiable: false,
     user: {}
   },
 
@@ -21,9 +20,6 @@ export default new Vuex.Store({
     },
     changeRegisterModalVisiable(state, {visiable}) {
       state.registerModalVisiable = visiable
-    },
-    changeNewTodoModalVisiable(state, {visiable}) {
-      state.newTodoModalVisiable = visiable
     },
     changeUser(state, {user}) {
       if(user.id) {
@@ -57,9 +53,6 @@ export default new Vuex.Store({
     },
     changeRegisterModalVisiable({commit}, playload) {
       commit('changeRegisterModalVisiable', playload)
-    },
-    changeNewTodoModalVisiable({commit}, playload) {
-      commit('changeNewTodoModalVisiable', playload)
     },
     changeUser({commit}, playload) {
       commit('changeUser', playload);

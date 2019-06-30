@@ -6,7 +6,7 @@ module.exports = {
             '/api': {
                 target: require('./src/util/constants.js').SERVER,
                 changeOrigin: true,
-                ws: true,
+                // ws: true,
                 pathRewrite: {
                     '^/api': ''
                 }

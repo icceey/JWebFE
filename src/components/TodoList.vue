@@ -9,7 +9,7 @@
                         {{ todo.title }}
                     </p>
                     <div v-if="mode===viewMode.UNDO" slot="extra">
-                        <a @click.stop="" style="margin-right: 5px">
+                        <a @click.stop="editTodo=todo;todoEditorModalVisiable=true" style="margin-right: 5px">
                             <Icon type="md-create" />修改
                         </a>
                         <a @click.stop="doneTodo(todo)" style="color: green">
@@ -24,14 +24,21 @@
                             <Icon type="md-trash" />删除
                         </a>
                     </div>
-                    <vue-markdown :html="false">{{ todo.content }}</vue-markdown>
+                    <vue-markdown :source="todo.content" :html="false"></vue-markdown>
                     <!-- <p style="word-break:break-word;">{{ todo.content }}</p> -->
                 </Card>
 
             </Col>
         </Row>
+        <infinite-loading  @infinite="loadMore">
+            <div v-if="page>=2" slot="no-more">没有更多啦</div>
+            <div v-if="page<2" slot="no-more"></div>
+            <div slot="no-results">还没有备忘哦</div>
+        </infinite-loading>
         <Spin size="large" v-if="loading" fix></Spin>
         <TodoModal v-model="curTodo"></TodoModal>
+        <TodoEditorModal v-model="editTodo" :visiable="todoEditorModalVisiable" :mode="editorMode.EDIT"
+                @on-visiable-change="todoEditorModalVisiable=$event" @input="input" />
         <Modal v-model="delModalVisiable" @on-cancel="delTodo={}">
             <p slot="header" style="color:#f60;">
                 <Icon type="ios-information-circle"></Icon>
@@ -51,15 +58,19 @@
 </template>
 
 <script>
+import TodoEditorModal from './TodoEditorModal'
 import VueMarkdown from 'vue-markdown'
+import InfiniteLoading from 'vue-infinite-loading'
 import TodoModal from './TodoModal'
-import {RESPONSE, VIEW_MODE} from '../util/constants'
+import {RESPONSE, VIEW_MODE, EDITOR_MODE} from '../util/constants'
 
 export default {
     name: 'TodoList',
     components: {
         VueMarkdown,
-        TodoModal
+        TodoModal,
+        TodoEditorModal,
+        InfiniteLoading
     },
     props: {
         mode: {
@@ -70,11 +81,16 @@ export default {
     data() {
         return {
             loading: false,
+            page: 0,
+            totPage: 1,
             todos: [],
             curTodo: {},
+            editTodo: {},
             delTodo: {},
+            todoEditorModalVisiable: false,
             delModalVisiable: false,
-            viewMode: VIEW_MODE
+            viewMode: VIEW_MODE,
+            editorMode: EDITOR_MODE
         }
     },
     computed: {
@@ -82,21 +98,31 @@ export default {
             return Math.ceil(this.todos.length/4);
         },
     },
-    mounted() {
-        this.init()
-    },
     methods: {
-        init() {
+        loadMore($state) {
+            if(this.page >= this.totPage) {
+                $state.complete()
+                return ;
+            }
             this.loading = true
             new Promise((resolve, reject) => {
-                this.axios.post('/todo/all/' + this.mode)
+                this.axios.get('/todo/all/' + this.mode, {
+                    params: {
+                        page: this.page
+                    }
+                })
                 .then(response => resolve(response))
                 .catch(() => reject())
             }).then(response => {
                 if(response.data) {
                     var code = response.data.code
                     if(code === RESPONSE.SUCCEES) {
-                        this.todos = response.data.data.todos
+                        this.page ++
+                        for(var i = 0; i < response.data.data.todos.length; i++) {
+                            this.todos.push(response.data.data.todos[i])
+                        }
+                        this.totPage = response.data.data.tot
+                        $state.loaded();
                     } else if(code === RESPONSE.FAIL)  {
                         this.$error(response.data.message)
                     }
@@ -154,12 +180,20 @@ export default {
         removeTodo(todo) {
             var idx = this.todos.findIndex((e) => e.id === todo.id)
             this.todos.splice(idx, 1)
+        },
+        input(value) {
+            console.log(value)
+            if(value && value.id) {
+                console.log(value)
+                var idx = this.todos.findIndex((e) => e.id === value.id)
+                this.todos.splice(idx, 1, value)
+            }
         }
     },
     watch: {
         delTodo(newValue) {
             this.delModalVisiable = !!newValue.id
-        }
+        },
     }
 }
 </script>

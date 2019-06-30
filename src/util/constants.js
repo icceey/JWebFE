@@ -26,6 +26,11 @@ exports.VIEW_MODE = {
     DONE: 'done'
 }
 
+exports.EDITOR_MODE = {
+    NEW: 'new',
+    EDIT: 'edit'
+}
+
 
 // exports.SERVER = 'http://localhost:8000'
 exports.SERVER = 'http://10.64.28.37:8000'

@@ -10,7 +10,7 @@
         </Col>
         <!-- <template v-if="isAuthed"> -->
             <Col v-if="isAuthed" span="2">
-                <Button type="primary" size="large" @click="changeNewTodoModalVisiable({visiable: true})">新建备忘</Button>
+                <Button type="primary" size="large" @click="todoEditorModalVisiable=true">新建备忘</Button>
             </Col>
             <Col v-if="isAuthed" span="2">
                 <Dropdown @on-click="handleDropDown">
@@ -35,9 +35,9 @@
                 <Button shape="circle" size="large" @click="changeRegisterModalVisiable({visiable: true})">注册</Button>
             </Col>
         <!-- </template> -->
-        <LoginModal></LoginModal>
-        <RegisterModal></RegisterModal>
-        <NewTodoModal></NewTodoModal>
+        <LoginModal />
+        <RegisterModal />
+        <TodoEditorModal :visiable="todoEditorModalVisiable" @on-visiable-change="todoEditorModalVisiable=$event" />
     </Row>
 </template>
 
@@ -45,7 +45,7 @@
 <script>
 import LoginModal from './LoginModal'
 import RegisterModal from './RegisterModal'
-import NewTodoModal from './NewTodoModal'
+import TodoEditorModal from './TodoEditorModal'
 import {mapGetters, mapActions} from 'vuex'
 
 export default {
@@ -53,11 +53,11 @@ export default {
     components: {
         LoginModal,
         RegisterModal,
-        NewTodoModal
+        TodoEditorModal
     },
     data() {
       return {
-        
+          todoEditorModalVisiable: false,
       };
     },
     mounted() {
@@ -70,7 +70,7 @@ export default {
         },
     },
     methods: {
-      ...mapActions(['changeLoginModalVisiable', 'changeRegisterModalVisiable', 'changeNewTodoModalVisiable', 'getUser', 'changeUser']),
+      ...mapActions(['changeLoginModalVisiable', 'changeRegisterModalVisiable', 'getUser', 'changeUser']),
       handleDropDown(command) {
           if(command === 'logout') this.logout()
           else if(command === 'profile') this.$router.push('/profile')

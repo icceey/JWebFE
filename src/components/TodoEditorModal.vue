@@ -1,5 +1,5 @@
 <template>
-    <Modal v-model="newTodoModalVisiable" title="新建备忘" width="80%" footer-hide>
+    <Modal v-model="thisVisiable" :title="title" width="80%" footer-hide>
         <Form ref="formTodo" :model="formTodo" :rules="ruleTodo" label-position="top" >
             <FormItem label="事件标题" prop="title" >
                 <Input v-model="formTodo.title" placeholder="事件标题" />
@@ -13,7 +13,7 @@
                 </DatePicker>
                 <TimePicker type="time" v-model="formTodo.time" :steps="[1,5]" 
                         :disabled-hours="disableHours" :disabled-minutes="disableMins"  
-                        placeholder="选择时间" format="HH:mm"   style="width: 200px">
+                        placeholder="选择时间" format="HH:mm" style="width: 200px">
                 </TimePicker>
             </FormItem>
             <FormItem>
@@ -25,17 +25,34 @@
 
 <script>
 import MarkdownEditor from '@/components/MarkdownEditor'
-import { mapActions } from 'vuex';
-import { RESPONSE } from '../util/constants';
+import { RESPONSE, EDITOR_MODE } from '../util/constants';
 
 export default {
-    name: 'NewTodoModal',
+    name: 'TodoEditorModal',
     components: {
         MarkdownEditor
+    },
+    props: {
+        visiable: {
+            type: Boolean,
+            default: false
+        },
+        mode: {
+            type: String,
+            default: EDITOR_MODE.NEW,
+        },
+        value: {
+            type: Object,
+            default() {
+                return {}
+            }
+        }
     },
     data() {
         return {
             loading: false,
+            title: '新建备忘',
+            thisVisiable: false,
             formTodo: {
                 title: '',
                 content: '',
@@ -59,14 +76,6 @@ export default {
         }
     },
     computed: {
-        newTodoModalVisiable: {
-            get() {
-                return this.$store.state.newTodoModalVisiable
-            },
-            set(visiable) {
-                this.changeNewTodoModalVisiable({visiable: visiable})
-            }
-        },
         datetime() {
             var tmp = ''
             if(this.formTodo.date) {
@@ -93,9 +102,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['changeNewTodoModalVisiable']),
         submit() {
-
             this.$refs.formTodo.validate(valid => {
                 if(valid) {
                     if(this.datetime && new Date(this.datetime).valueOf() < Date.now()) {
@@ -103,19 +110,31 @@ export default {
                         return ;
                     }
                     this.loading = true
+                    var url = '/todo/add'
+                    var dat = {}
+                    if(this.mode === EDITOR_MODE.EDIT) {
+                        url = '/todo/update/'+this.value.id
+                        dat = this.value
+                    }
+                    dat.title = this.formTodo.title
+                    dat.content = this.formTodo.content
+                    dat.datetime = this.datetime
                     new Promise((resolve, reject) => {
-                        this.axios.post('/todo/add', {
-                            title: this.formTodo.title,
-                            content: this.formTodo.content,
-                            datetime: this.datetime
-                        }).then(res => resolve(res))
+                        this.axios.post(url, dat)
+                        .then(res => resolve(res))
                         .catch(() => reject())
                     }).then(res => {
                         this.loading = false
                         if(res.data) {
                             var code = res.data.code
                             if(code === RESPONSE.SUCCEES) {
-                                this.$success('添加成功')
+                                if(this.mode === EDITOR_MODE.NEW) this.$success('添加成功')
+                                else {
+                                    this.$success('修改成功')
+                                    dat.datetime = new Date(dat.datetime).format('yyyy-MM-dd hh:mm:ss')
+                                    this.$emit('input', dat)
+                                }
+                                this.thisVisiable = false
                             } else if(code === RESPONSE.FAIL) {
                                 this.$error(res.data.message)
                             }
@@ -127,6 +146,25 @@ export default {
                 }
             })
         },
+    },
+    watch: {
+        thisVisiable(newValue) {
+            this.$emit('on-visiable-change', newValue)
+        },
+        visiable(newValue) {
+            this.thisVisiable = newValue
+        },
+        value(newValue) {
+            if(newValue.id) {
+                this.formTodo.title = newValue.title
+                this.formTodo.content = newValue.content
+                if(newValue.datetime) {
+                    this.formTodo.date = newValue.datetime.substring(0,10)
+                    this.formTodo.time = newValue.datetime.substring(11,19)
+                }
+                this.title = '修改备忘'
+            }
+        }
     }
 }
 </script>
