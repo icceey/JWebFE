@@ -133,6 +133,12 @@ export default {
                                 if(this.mode === EDITOR_MODE.NEW) {
                                     this.$success('添加成功')
                                     this.addUndo({undo: res.data.data.todo})
+                                    this.formTodo = {
+                                        title: '',
+                                        content: '',
+                                        date: '',
+                                        time: ''
+                                    }
                                 }
                                 else {
                                     this.$success('修改成功')

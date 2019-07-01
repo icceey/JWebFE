@@ -90,21 +90,24 @@ export default {
                             username: this.formRegister.username,
                             password: util.md5(this.formRegister.password)
                         }).then(response => resolve(response))
-                        .catch(() => reject());
+                        .catch(() => reject())
                     }).then(response => {
-                        this.loading = false;
+                        this.loading = false
                         if(response.data) {
                             var code = response.data.code;
                             if(code === RESPONSE.SUCCESS) {
-                                this.changeRegisterModalVisiable(false);
-                                this.$success('注册成功');
+                                this.changeRegisterModalVisiable(false)
+                                this.$success('注册成功')
+                                this.formRegister.username = ''
+                                this.formRegister.password = ''
+                                this.formRegister.password2 = ''
                             } else if(code === RESPONSE.FAIL) {
-                                this.$error(response.data.message);
+                                this.$error(response.data.message)
                             }
                         }
                     }).catch(() => {
-                        this.$error('嘤嘤嘤注册失败,请检查网络连接');
-                        this.loading = false;
+                        this.$error('嘤嘤嘤注册失败,请检查网络连接')
+                        this.loading = false
                     })
                 }
             })

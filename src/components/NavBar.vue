@@ -6,7 +6,7 @@
                 <MenuItem name="todo" to="/todo">事件清单</MenuItem>
                 <!-- <MenuItem name="?" to="/todo">草稿箱</MenuItem> -->
                 <MenuItem name="done" to="/done">已完成</MenuItem>
-                <!-- <MenuItem v-if="isAdmin" name="admin" to="/admin">后台管理</MenuItem> -->
+                <MenuItem v-if="isAdmin" name="admin" to="/admin">后台管理</MenuItem>
             </Menu>
         </Col>
         <!-- <template v-if="isAuthed"> -->
@@ -80,8 +80,8 @@ export default {
       },
       logout() {
         this.axios.post('/user/logout');
-        this.clearAll();
         this.$router.replace('/');
+        this.clearAll();
       }
     }
 }

@@ -24,7 +24,7 @@ export default new Vuex.Store({
       state.registerModalVisiable = visiable
     },
     changeUser(state, {user}) {
-      if(user.id) {
+      if(user && user.id) {
         storage.set(STORAGE_KEY.USER, user)
       } else {
         storage.remove(STORAGE_KEY.USER)
@@ -96,7 +96,7 @@ export default new Vuex.Store({
       commit('removeDone', playload);
     },
     clearAll({commit}) {
-      commit('changeUser', {});
+      commit('changeUser', {user: {}});
       commit('setUndos', {undos: []});
       commit('setDones', {dones: []});
     }

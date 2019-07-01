@@ -42,22 +42,21 @@ Vue.prototype.$success = (s) => Vue.prototype.$Message.success(s)
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
-    if(to.meta.requireAdmin) {
-      if (storage.get(STORAGE_KEY.USER).type >= USER_TYPE.ADMIN) {
-          next()
-      } else {
-          Vue.prototype.$error('您不是管理员呢:)')
-          next(false)
-      }
-    } else {
       if (storage.get(STORAGE_KEY.USER)) {
+          if(to.meta.requireAdmin) {
+            if (storage.get(STORAGE_KEY.USER).type >= USER_TYPE.ADMIN) {
+                next()
+            } else {
+                Vue.prototype.$error('您不是管理员呢:)')
+                next(false)
+            }
+          }
           next()
       } else {
           Vue.prototype.$error('您还没有登录哦:)')
           next(false)
           store.dispatch('changeLoginModalVisiable', {visiable: true})
       }
-    }
     
   } else {
     next()

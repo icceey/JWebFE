@@ -72,6 +72,8 @@ export default {
                                 this.changeLoginModalVisiable({visiable: false})
                                 this.$success('登录成功')
                                 this.changeUser({user: response.data.data.user || {}})
+                                this.formLogin.username = ''
+                                this.formLogin.password = ''
                             } else if(code === RESPONSE.FAIL) {
                                 this.$error(response.data.message)
                             }

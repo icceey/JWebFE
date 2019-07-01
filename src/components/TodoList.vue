@@ -34,6 +34,9 @@
             <div v-if="page>=2" slot="no-more">没有更多啦</div>
             <div v-if="page<2" slot="no-more"></div>
             <div slot="no-results">还没有备忘哦</div>
+            <div slot="error" slot-scope="{ trigger }">
+                加载失败, 点击 <a href="javascript:;" @click="trigger">这里</a>重试
+            </div>
         </infinite-loading>
         <!-- <Spin size="large" v-if="loading" fix></Spin> -->
         <TodoModal v-model="curTodo"></TodoModal>
@@ -54,6 +57,7 @@
                 <Button size="large" @click="delTodo={}">取消</Button>
             </div>
         </Modal>
+        <BackTop></BackTop>
     </div>
 </template>
 

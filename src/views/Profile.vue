@@ -112,7 +112,6 @@ export default {
                             if(code === RESPONSE.SUCCESS) {
                                 this.$success('修改成功')
                                 this.changeUser({user: res.data.data.user || {}})
-                                    .then(()=>this.init())
                             } else if(code === RESPONSE.FAIL) {
                                 this.$error(res.data.message)
                             }
@@ -139,6 +138,8 @@ export default {
                     if(code === RESPONSE.SUCCESS) {
                         this.$success('修改成功')
                         this.avatar = avatar
+                        this.changeUser({user: res.data.data.user || {}})
+                                    .then(()=>this.init())
                     } else if(code === RESPONSE.FAIL) {
                         this.$error(res.data.message)
                     }
