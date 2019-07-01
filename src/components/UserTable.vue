@@ -1,6 +1,11 @@
 <template>
     <div>
         <Table :columns="columns" :data="datas" :loading="loading" border stripe></Table>
+        <div v-if="totPage>=2" style="margin: 10px;overflow: hidden">
+            <div style="float: right;">
+                <Page :total="totPage*pageSize" :current="currentPage" :page-size="pageSize" @on-change="changePage"></Page>
+            </div>
+        </div>
         <Modal v-model="delModalVisiable" @on-cancel="delModalVisiable=false">
             <p slot="header" style="color:#f60;">
                 <Icon type="ios-information-circle"></Icon>
@@ -32,6 +37,9 @@ export default {
             delModalVisiable: false,
             delUser: {},
             loading: false,
+            currentPage: 1,
+            totPage: 1,
+            pageSize: 12,
             columns: [{title: '用户名', key: 'username', render: (h, params) => h('strong', params.row.username)},
                 {title: '昵称', key: 'nickname'},
                 {title: '邮箱', key: 'mail'},
@@ -91,7 +99,7 @@ export default {
             new Promise((resolve, reject) => {
                 this.axios.get('/user/all', {
                     params: {
-                        
+                        page: this.currentPage-1
                     }
                 }).then(response => resolve(response))
                 .catch(() => reject())
@@ -101,6 +109,7 @@ export default {
                     var code = response.data.code
                     if(code === RESPONSE.SUCCESS) {
                         this.datas = response.data.data.users
+                        this.totPage = response.data.data.tot
                     } else if(code === RESPONSE.FAIL) {
                         this.$error(response.data.message)
                     }
@@ -150,6 +159,7 @@ export default {
                         this.datas.splice(param.index, 1)
                         this.delUser = {}
                         this.delModalVisiable = false
+                        this.loadUser()
                     } else if(code === RESPONSE.FAIL) {
                         this.$error(response.data.message)
                     }
@@ -158,6 +168,10 @@ export default {
                 this.loading = false
                 this.$error('删除失败,请检查网络连接')
             })
+        },
+        changePage(page) {
+            this.currentPage = page
+            this.loadUser()
         }
     }
 }
